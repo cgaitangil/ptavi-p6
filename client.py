@@ -33,14 +33,12 @@ my_socket.connect((SERVER, PORT))
 
 print('')
 
-print("Enviando: " + LINE)
+print("Sending: " + LINE)
 my_socket.send(bytes(LINE, 'utf-8') + b'\r\n')
 data = my_socket.recv(1024)
 
-print('Recibido -- ', data.decode('utf-8'))
-print("Terminando socket...")
+print('Received:' + '\n' + data.decode('utf-8'))
+print("Ending socket..." + '\n')
 
 # Cerramos todo
 my_socket.close()
-print("Fin.")
-print('')
