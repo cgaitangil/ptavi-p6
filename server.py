@@ -27,16 +27,20 @@ class EchoHandler(socketserver.DatagramRequestHandler):
         print('\n' + "The client sends us: " + petition)
         
         method = petition.split(' ')[0]
-        Trying = 'SIP/2.0 100 Trying' + '\r\n'
-        Ring = 'SIP/2.0 180 Ring' + '\r\n'
-        OK = 'SIP/2.0 200 OK' + '\r\n'
+        
+        Trying = 'SIP/2.0 100 Trying' + '\r\n\r\n'
+        Ring = 'SIP/2.0 180 Ring' + '\r\n\r\n'
+        OK = 'SIP/2.0 200 OK' + '\r\n\r\n'
         Invite_Res = Trying + Ring + OK # Enviamos los tres paquetes a la vez
         if method == 'INVITE':
             self.wfile.write(bytes(Invite_Res, 'utf-8'))
+            print(self.rfile.read().decode('utf-8'))
         elif method == 'BYE':
             self.wfile.write(bytes(OK, 'utf-8'))
+        elif method != 'BYE' and method != 'INVITE' and method != 'ACK':
+            self.wfile.write(b'SIP/2.0 405 Method Not Allowed\r\n\r\n')
         else:
-            self.wfile.write(b'SIP/2.0 405 Method Not Allowed\r\n')
+            self.wfile.write(b'SIP/2.0 400 BAd Request\r\n\r\n')
             
      #   aEjecutar = 'mp32rtp -i ' + str(self.client_address[0]) 
       #  + ' -p ' + str(self.client_address[1]) + petition.split(' ')[-1]
@@ -49,17 +53,17 @@ if __name__ == "__main__":
     try:
         ServerIP = sys.argv[1]
         ServerPort = int(sys.argv[2])
-        fich = sys.argv[3]
+        audio_file = sys.argv[3]
     except:
         Error = 'Usage: python3 server.py IP port audio_file'
         sys.exit('\n' + Error + '\n')
         
     # Comprobamos si existe el fichero pasado al lanzar el servidor
-    if os.path.isfile(fich):
+    if os.path.isfile(audio_file):
         print('\n' + 'Listening...' + '\n')
         pass
     else:
-        sys.exit('\n' + fich + ' not found' + '\n')
+        sys.exit('\n' + '<' + audio_file + '> File not found.' + '\n')
 
     serv = socketserver.UDPServer((ServerIP, ServerPort), EchoHandler)
     
