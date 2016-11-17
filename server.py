@@ -13,34 +13,42 @@ class EchoHandler(socketserver.DatagramRequestHandler):
     """
     Echo server class
     """
-
     def handle(self):
         # Escribe dirección y puerto del cliente (de tupla client_address)
-
-        # Leyendo línea a línea lo que nos envía el cliente
-        line = self.rfile.read()
-        petition = line.decode('utf-8')
-               
-        print('-------------- Petition: -----------------' + '\n')
-        print('Client_IP: ' + self.client_address[0])
-        print('Client_Port: ' + str(self.client_address[1]))
-        print('\n' + "The client sends us: " + petition)
+        Client_IP = self.client_address[0]
+        Client_Port = self.client_address[1]
         
-        method = petition.split(' ')[0]
+        # Leyendo línea a línea lo que nos envía el cliente
+        data = self.rfile.read().decode('utf-8')
         
         Trying = 'SIP/2.0 100 Trying' + '\r\n\r\n'
         Ring = 'SIP/2.0 180 Ring' + '\r\n\r\n'
         OK = 'SIP/2.0 200 OK' + '\r\n\r\n'
         Invite_Res = Trying + Ring + OK # Enviamos los tres paquetes a la vez
+        
+        method = data.split(' ')[0]
         if method == 'INVITE':
+            print('The client sends us: ' + data)
             self.wfile.write(bytes(Invite_Res, 'utf-8'))
-            print(self.rfile.read().decode('utf-8'))
+            print('Sending:\r\n' + Invite_Res)
         elif method == 'BYE':
+            print('The client sends us: ' + data)
             self.wfile.write(bytes(OK, 'utf-8'))
+            print('Sending:\r\n' + OK)
+            print('\n---------- Next Petition: -----------\n')
+        elif method == 'ACK':
+            print('Assent: ' + data)
+            print('\n---------- Next Petition: -----------\n')
+            
         elif method != 'BYE' and method != 'INVITE' and method != 'ACK':
+            print('The client sends us: ' + data)
             self.wfile.write(b'SIP/2.0 405 Method Not Allowed\r\n\r\n')
         else:
+            print('The client sends us: ' + data)
             self.wfile.write(b'SIP/2.0 400 BAd Request\r\n\r\n')
+            
+
+        
             
      #   aEjecutar = 'mp32rtp -i ' + str(self.client_address[0]) 
       #  + ' -p ' + str(self.client_address[1]) + petition.split(' ')[-1]
