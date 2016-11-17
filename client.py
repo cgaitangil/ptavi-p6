@@ -20,11 +20,11 @@ try:
     REC_PORT = int(LINE[1][LINE[-1].find(':') + 1:])
     REC_NAME = LINE[1][:LINE[1].find('@')]
   
-    LINE = LINE[0].upper() + ' sip:' + LINE[1][:-5] + ' SIP/2.0' + '\r\n\r\n'
+    LINE = LINE[0].upper() + ' sip:' + LINE[1][:-5] + ' SIP/2.0\r\n\r\n'
    
 except:
     Error = 'Usage: python3 client.py method receiver@IP:SIPport'
-    sys.exit(Error + '\n')
+    sys.exit('\n' + Error + '\n')
 
 # Creamos el socket, lo configuramos y lo atamos a un servidor/puerto
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -33,20 +33,17 @@ my_socket.connect((REC_IP, REC_PORT))
 
 print('\n' + "Sending: " + LINE)
 my_socket.send(bytes(LINE, 'utf-8'))
+ 
+response = my_socket.recv(1024).decode('utf-8')
 
-data = my_socket.recv(1024)
-response = data.decode('utf-8')
-
-print(response.split(' '))
 print('Received:' + '\n' + response)
 
 # Enviamos ACK si recibimos el paquete con las cabeceras Trying, Ring y OK.
-ack = 'ACK sip:' + REC_NAME + '@' + REC_IP + 'SIP/2.0'
-print(response.split(' ')[2][0:7])
-if response.split(' ')[2][0:7] == 'Trying':
+ack = 'ACK sip:' + REC_NAME + '@' + REC_IP + ' SIP/2.0'
+if response.split('\r\n\r\n')[0] == 'SIP/2.0 100 Trying':
+    print('Sending ACK (Trying Response) --> ' + ack)
     my_socket.send(bytes(ack, 'utf-8'))
-
-print("Finished Socket." + '\n')
+print('\nFinished Socket.\n')
 
 # Cerramos todo
 my_socket.close()
