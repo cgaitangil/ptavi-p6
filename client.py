@@ -43,5 +43,4 @@ if response.split('\r\n\r\n')[0] == 'SIP/2.0 100 Trying':
     my_socket.send(bytes(ack, 'utf-8'))
 print('\nFinished Socket.\n')
 
-# Cerramos todo
 my_socket.close()
