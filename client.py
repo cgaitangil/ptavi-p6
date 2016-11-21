@@ -9,19 +9,17 @@ import sys
 
 # Cliente UDP simple.
 
-
-
 # Contenido que vamos a enviar
 
 try:
     LINE = sys.argv[1:]
-    
+
     REC_IP = LINE[1][LINE[1].find('@') + 1:LINE[1].find(':')]
     REC_PORT = int(LINE[1][LINE[-1].find(':') + 1:])
     REC_NAME = LINE[1][:LINE[1].find('@')]
-  
+
     LINE = LINE[0].upper() + ' sip:' + LINE[1][:-5] + ' SIP/2.0\r\n\r\n'
-   
+
 except:
     Error = 'Usage: python3 client.py method receiver@IP:SIPport'
     sys.exit('\n' + Error + '\n')
@@ -33,7 +31,7 @@ my_socket.connect((REC_IP, REC_PORT))
 
 print('\n' + "Sending: " + LINE)
 my_socket.send(bytes(LINE, 'utf-8'))
- 
+
 response = my_socket.recv(1024).decode('utf-8')
 
 print('Received:' + '\n' + response)
